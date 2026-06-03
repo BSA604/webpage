@@ -256,7 +256,7 @@ async function deletePhoto(photoId) {
 // ============== Event Management ==============
 async function loadEvents() {
   try {
-    const response = await fetch(`${API_BASE}/events`, {
+    const response = await fetch(`${API_BASE}/events/local`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -294,7 +294,7 @@ async function handleCreateEvent(e) {
   const description = document.getElementById('eventDescription').value;
 
   try {
-    const response = await fetch(`${API_BASE}/events`, {
+    const response = await fetch(`${API_BASE}/events/local`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -318,7 +318,7 @@ async function deleteEvent(eventId) {
   if (!confirm('Delete this event? Associated photos will also be deleted.')) return;
 
   try {
-    const response = await fetch(`${API_BASE}/events/${eventId}`, {
+    const response = await fetch(`${API_BASE}/events/local/${eventId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });

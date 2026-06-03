@@ -28,9 +28,8 @@ function setupEventListeners() {
 // ============== Load Events ==============
 async function loadEvents() {
   try {
-    const response = await fetch(`${API_BASE}/cloudinary/folders?path=bsa-604/events`);
-    const data = await response.json();
-    const folders = Array.isArray(data.folders) ? data.folders : [];
+    const response = await fetch(`${API_BASE}/events`);
+    const folders = await response.json();
 
     // Populate upload dropdown
     eventSelect.innerHTML = '<option value="">-- Select Event --</option>';

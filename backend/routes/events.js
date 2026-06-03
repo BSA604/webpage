@@ -1,5 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
+import cloudinary from '../config/cloudinary.js';
 import {
   getAllEvents,
   getEventById,
@@ -10,18 +11,38 @@ import {
 
 const router = express.Router();
 
-// Public route: get all events
-router.get('/', (req, res) => {
+// Public route: get Cloudinary folders as events
+router.get('/', async (req, res) => {
+  const folderPath = req.query.path || 'bsa-604/events';
+
+  try {
+    const result = await cloudinary.api.sub_folders(folderPath);
+    const folders = Array.isArray(result.folders)
+      ? result.folders.map(folder => ({
+          id: folder.name,
+          name: folder.name,
+          path: folder.path
+        }))
+      : [];
+
+    res.json(folders);
+  } catch (error) {
+    console.error('Failed to fetch Cloudinary event folders:', error);
+    res.status(500).json({ error: 'Failed to fetch event folders' });
+  }
+});
+
+// Local event management for admin
+router.get('/local', (req, res) => {
   try {
     const events = getAllEvents();
     res.json(events);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch events' });
+    res.status(500).json({ error: 'Failed to fetch local events' });
   }
 });
 
-// Public route: get single event
-router.get('/:id', (req, res) => {
+router.get('/local/:id', (req, res) => {
   try {
     const event = getEventById(parseInt(req.params.id));
     if (!event) {
@@ -33,8 +54,7 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// Admin: create event
-router.post('/', verifyToken, (req, res) => {
+router.post('/local', verifyToken, (req, res) => {
   const { name, description } = req.body;
 
   if (!name) {
@@ -49,8 +69,7 @@ router.post('/', verifyToken, (req, res) => {
   }
 });
 
-// Admin: update event
-router.put('/:id', verifyToken, (req, res) => {
+router.put('/local/:id', verifyToken, (req, res) => {
   const { name, description } = req.body;
 
   try {
@@ -64,8 +83,7 @@ router.put('/:id', verifyToken, (req, res) => {
   }
 });
 
-// Admin: delete event
-router.delete('/:id', verifyToken, (req, res) => {
+router.delete('/local/:id', verifyToken, (req, res) => {
   try {
     deleteEvent(parseInt(req.params.id));
     res.json({ message: 'Event deleted' });
