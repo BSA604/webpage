@@ -86,7 +86,7 @@ export function getAllPhotos(filters = {}) {
   let photos = db.photos;
   
   if (filters.eventId) {
-    photos = photos.filter(p => p.eventId === filters.eventId);
+    photos = photos.filter(p => String(p.eventId) === String(filters.eventId));
   }
   if (filters.status) {
     photos = photos.filter(p => p.status === filters.status);

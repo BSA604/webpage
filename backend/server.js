@@ -5,6 +5,7 @@ import { initializeDB } from './db.js';
 import authRoutes from './routes/auth.js';
 import eventsRoutes from './routes/events.js';
 import photosRoutes from './routes/photos.js';
+import cloudinaryRoutes from './routes/cloudinary.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ initializeDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/photos', photosRoutes);
+app.use('/api/cloudinary', cloudinaryRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

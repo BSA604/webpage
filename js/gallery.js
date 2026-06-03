@@ -28,26 +28,32 @@ function setupEventListeners() {
 // ============== Load Events ==============
 async function loadEvents() {
   try {
-    const response = await fetch(`${API_BASE}/events`);
-    const events = await response.json();
+    const response = await fetch(`${API_BASE}/cloudinary/folders?path=bsa-604/events`);
+    const data = await response.json();
+    const folders = Array.isArray(data.folders) ? data.folders : [];
 
     // Populate upload dropdown
     eventSelect.innerHTML = '<option value="">-- Select Event --</option>';
-    events.forEach(event => {
+    folders.forEach(folder => {
       const option = document.createElement('option');
-      option.value = event.id;
-      option.textContent = event.name;
+      option.value = folder.name;
+      option.textContent = folder.name;
       eventSelect.appendChild(option);
     });
 
     // Populate filter dropdown
     eventFilter.innerHTML = '<option value="">All Events</option>';
-    events.forEach(event => {
+    folders.forEach(folder => {
       const option = document.createElement('option');
-      option.value = event.id;
-      option.textContent = event.name;
+      option.value = folder.name;
+      option.textContent = folder.name;
       eventFilter.appendChild(option);
     });
+
+    if (folders.length === 0) {
+      eventSelect.innerHTML = '<option value="">No events found</option>';
+      eventFilter.innerHTML = '<option value="">All Events</option>';
+    }
   } catch (error) {
     console.error('Error loading events:', error);
     showStatus('uploadStatus', 'Error loading events', 'error');

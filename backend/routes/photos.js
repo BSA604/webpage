@@ -38,7 +38,7 @@ router.post('/upload', upload.single('photo'), async (req, res) => {
 
     // Store metadata locally
     const photo = createPhoto(
-      parseInt(eventId),
+      eventId,
       result,
       uploader || 'anonymous'
     );
@@ -58,7 +58,7 @@ router.get('/', (req, res) => {
   try {
     const { eventId, status = 'approved' } = req.query;
     const filters = { status };
-    if (eventId) filters.eventId = parseInt(eventId);
+    if (eventId) filters.eventId = eventId;
 
     const photos = getAllPhotos(filters);
     res.json(photos);
