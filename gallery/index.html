@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Gallery - BSA Troop 604</title>
+  <link rel="stylesheet" href="/css/gallery.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <h1 class="nav-title">BSA Troop 604 Photo Gallery</h1>
+      <div class="nav-links">
+        <a href="/index.html">Home</a>
+        <a href="/admin/index.html">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="gallery-header">
+      <h2>Gallery</h2>
+      <p>Upload your photos from our events</p>
+    </div>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <div class="upload-card">
+        <h3>Upload Photo</h3>
+        <form id="uploadForm">
+          <div class="form-group">
+            <label for="eventSelect">Select Event:</label>
+            <select id="eventSelect" required></select>
+          </div>
+
+          <div class="form-group">
+            <label for="uploaderName">Your Name (optional):</label>
+            <input type="text" id="uploaderName" placeholder="Your name" />
+          </div>
+
+          <div class="form-group">
+            <label for="photoInput">Choose Photo:</label>
+            <input type="file" id="photoInput" accept="image/*" required />
+          </div>
+
+          <button type="submit" class="btn btn-primary">Upload Photo</button>
+          <div id="uploadStatus" class="status-message"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+      <div class="filter-controls">
+        <label for="eventFilter">Filter by Event:</label>
+        <select id="eventFilter">
+          <option value="">All Events</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Gallery Display -->
+    <section class="gallery-section">
+      <div id="galleryContainer" class="gallery-grid">
+        <div class="loading">Loading photos...</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 BSA Troop 604. All rights reserved.</p>
+  </footer>
+
+  <script src="/js/gallery.js"></script>
+</body>
+</html>

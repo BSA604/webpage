@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - BSA Troop 604 Gallery</title>
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <h1 class="nav-title">Admin Dashboard</h1>
+      <div class="nav-links">
+        <span id="adminUsername"></span>
+        <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Login Form -->
+  <div id="loginContainer" class="login-container">
+    <div class="login-card">
+      <h2>Admin Login</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <div id="loginStatus" class="status-message"></div>
+      </form>
+      <p class="back-link">
+        <a href="/gallery/index.html">← Back to Gallery</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard (hidden until logged in) -->
+  <main id="adminDashboard" class="container hidden">
+    <div class="dashboard-layout">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <button class="nav-btn active" data-tab="moderation">
+            📋 Moderation Queue
+          </button>
+          <button class="nav-btn" data-tab="approved">
+            ✅ Approved Photos
+          </button>
+          <button class="nav-btn" data-tab="events">
+            📅 Manage Events
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="dashboard-content">
+        <!-- Moderation Tab -->
+        <section id="moderation-tab" class="tab-content active">
+          <h2>Pending Photos for Moderation</h2>
+          <div id="moderationQueue" class="photo-grid">
+            <div class="loading">Loading pending photos...</div>
+          </div>
+        </section>
+
+        <!-- Approved Tab -->
+        <section id="approved-tab" class="tab-content">
+          <h2>Approved Photos</h2>
+          <div id="approvedPhotos" class="photo-grid">
+            <div class="loading">Loading approved photos...</div>
+          </div>
+        </section>
+
+        <!-- Events Tab -->
+        <section id="events-tab" class="tab-content">
+          <h2>Manage Events</h2>
+          <div class="event-manager">
+            <div class="create-event-form">
+              <h3>Create New Event</h3>
+              <form id="createEventForm">
+                <div class="form-group">
+                  <label for="eventName">Event Name:</label>
+                  <input type="text" id="eventName" required />
+                </div>
+                <div class="form-group">
+                  <label for="eventDescription">Description:</label>
+                  <textarea id="eventDescription" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Event</button>
+                <div id="eventStatus" class="status-message"></div>
+              </form>
+            </div>
+
+            <div class="events-list">
+              <h3>Events</h3>
+              <ul id="eventsList"></ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 BSA Troop 604. All rights reserved.</p>
+  </footer>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
