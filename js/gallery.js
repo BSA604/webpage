@@ -36,6 +36,7 @@ async function loadFolders() {
       }
     });
     const data = await response.json();
+    console.log('Fetched folders:', data);
     const folders = Array.isArray(data.folders)
       ? data.folders
           .filter(folder => folder.path === FOLDER_PREFIX || folder.path.startsWith(`${FOLDER_PREFIX}/`))
