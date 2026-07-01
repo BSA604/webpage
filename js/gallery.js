@@ -1,155 +1,89 @@
-// Configure API endpoint based on environment
-const API_BASE = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000/api'
-  : 'https://bsa-604-gallery-api.onrender.com/api'; // Same origin in production
+const CLOUDINARY_CLOUD = 'drex1jrqe';
+const CLOUDINARY_BASE = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}`;
+const FOLDERS_API = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/folders`;
+const FOLDER_PREFIX = 'Marengo Cave';
 
-// ============== DOM Elements ==============
-const uploadForm = document.getElementById('uploadForm');
-const eventSelect = document.getElementById('eventSelect');
 const eventFilter = document.getElementById('eventFilter');
-const photoInput = document.getElementById('photoInput');
-const uploaderName = document.getElementById('uploaderName');
-const uploadStatus = document.getElementById('uploadStatus');
 const galleryContainer = document.getElementById('galleryContainer');
 
-// ============== Initialize ==============
+const state = {
+  folders: [],
+  selectedFolder: ''
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadEvents();
-  await loadPhotos();
+  await loadFolders();
   setupEventListeners();
+  if (state.folders.length) {
+    state.selectedFolder = state.folders[0].path;
+    eventFilter.value = state.selectedFolder;
+    await loadGallery(state.selectedFolder);
+  }
 });
 
-// ============== Event Listeners ==============
 function setupEventListeners() {
-  uploadForm.addEventListener('submit', handleUpload);
-  eventFilter.addEventListener('change', loadPhotos);
+  eventFilter.addEventListener('change', async () => {
+    state.selectedFolder = eventFilter.value;
+    await loadGallery(state.selectedFolder);
+  });
 }
 
-// ============== Load Events ==============
-async function loadEvents() {
+async function loadFolders() {
   try {
-    const response = await fetch(`${API_BASE}/events`);
-    const folders = await response.json();
-
-    // Populate upload dropdown
-    eventSelect.innerHTML = '<option value="">-- Select Event --</option>';
-    folders.forEach(folder => {
-      const option = document.createElement('option');
-      option.value = folder.name;
-      option.textContent = folder.name;
-      eventSelect.appendChild(option);
+    const response = await fetch(FOLDERS_API, {
+      headers: {
+        Authorization: 'Basic ' + btoa('727385161984683:pzgM2TDo39iec6fj__FCp5hchEk')
+      }
     });
+    const data = await response.json();
+    const folders = Array.isArray(data.folders)
+      ? data.folders
+          .filter(folder => folder.path === FOLDER_PREFIX || folder.path.startsWith(`${FOLDER_PREFIX}/`))
+          .map(folder => ({
+            name: folder.name,
+            path: folder.path
+          }))
+      : [];
 
-    // Populate filter dropdown
-    eventFilter.innerHTML = '<option value="">All Events</option>';
+    state.folders = folders;
+    eventFilter.innerHTML = '<option value="">Select an event</option>';
     folders.forEach(folder => {
       const option = document.createElement('option');
-      option.value = folder.name;
+      option.value = folder.path;
       option.textContent = folder.name;
       eventFilter.appendChild(option);
     });
-
-    if (folders.length === 0) {
-      eventSelect.innerHTML = '<option value="">No events found</option>';
-      eventFilter.innerHTML = '<option value="">All Events</option>';
-    }
   } catch (error) {
-    console.error('Error loading events:', error);
-    showStatus('uploadStatus', 'Error loading events', 'error');
+    console.error('Error loading folders:', error);
+    galleryContainer.innerHTML = '<div class="error">Unable to load gallery folders.</div>';
   }
 }
 
-// ============== Load Photos ==============
-async function loadPhotos() {
+async function loadGallery(folderPath) {
+  galleryContainer.innerHTML = '<div class="loading">Loading photos...</div>';
+
   try {
-    const eventId = eventFilter.value;
-    const url = new URL(`${API_BASE}/photos`);
-    url.searchParams.set('status', 'approved');
-    if (eventId) url.searchParams.set('eventId', eventId);
+    const response = await fetch(`https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${encodeURIComponent(folderPath)}.json`);
+    const data = await response.json();
+    const items = Array.isArray(data.resources) ? data.resources : [];
 
-    const response = await fetch(url);
-    const photos = await response.json();
-
-    galleryContainer.innerHTML = '';
-
-    if (photos.length === 0) {
-      galleryContainer.innerHTML = '<div class="no-photos">No photos yet. Be the first to upload!</div>';
+    if (!items.length) {
+      galleryContainer.innerHTML = '<div class="no-photos">No photos yet for this event.</div>';
       return;
     }
 
-    photos.forEach(photo => {
-      const photoCard = createPhotoCard(photo);
-      galleryContainer.appendChild(photoCard);
+    galleryContainer.innerHTML = '';
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      const imageUrl = `${CLOUDINARY_BASE}/image/upload/${item.public_id}`;
+      card.innerHTML = `
+        <img src="${imageUrl}" alt="Gallery photo" loading="lazy" />
+      `;
+      galleryContainer.appendChild(card);
     });
   } catch (error) {
-    console.error('Error loading photos:', error);
-    galleryContainer.innerHTML = '<div class="error">Error loading photos</div>';
-  }
-}
-
-// ============== Create Photo Card ==============
-function createPhotoCard(photo) {
-  const card = document.createElement('div');
-  card.className = 'photo-card';
-  card.innerHTML = `
-    <img src="${photo.cloudinaryUrl}" alt="Gallery photo" loading="lazy" />
-    <div class="photo-info">
-      <small>${new Date(photo.createdAt).toLocaleDateString()}</small>
-      ${photo.uploader !== 'anonymous' ? `<small>Uploaded by: ${photo.uploader}</small>` : ''}
-    </div>
-  `;
-  return card;
-}
-
-// ============== Handle Upload ==============
-async function handleUpload(e) {
-  e.preventDefault();
-
-  const eventId = eventSelect.value;
-  const file = photoInput.files[0];
-  const name = uploaderName.value || 'anonymous';
-
-  if (!eventId || !file) {
-    showStatus('uploadStatus', 'Please select an event and choose a photo', 'error');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('photo', file);
-  formData.append('eventId', eventId);
-  formData.append('uploader', name);
-
-  try {
-    showStatus('uploadStatus', 'Uploading...', 'loading');
-
-    const response = await fetch(`${API_BASE}/photos/upload`, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error('Upload failed');
-    }
-
-    showStatus('uploadStatus', 'Photo uploaded! Pending admin approval.', 'success');
-    uploadForm.reset();
-    setTimeout(() => {
-      loadPhotos(); // Refresh gallery
-    }, 1000);
-  } catch (error) {
-    console.error('Upload error:', error);
-    showStatus('uploadStatus', 'Failed to upload photo. Please try again.', 'error');
-  }
-}
-
-// ============== Utility Functions ==============
-function showStatus(elementId, message, type = 'info') {
-  const element = document.getElementById(elementId);
-  element.className = `status-message ${type}`;
-  element.textContent = message;
-  if (type === 'success') {
-    setTimeout(() => {
-      element.textContent = '';
-    }, 5000);
+    console.error('Error loading gallery:', error);
+    galleryContainer.innerHTML = '<div class="error">Unable to load photos for this event.</div>';
   }
 }
