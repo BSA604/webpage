@@ -28,11 +28,10 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.get('/api/gallery/folders', async (req, res) => {
   try {
     const max = parseInt(process.env.MAX_SEARCH_RESULTS || req.query.max_results || '500', 10);
-    const result = await cloudinary.search
-      .expression('resource_type:image')
-      .max_results(max)
-      .execute();
+    const result = await cloudinary.RootFolders();
 
+    console.log('Cloudinary folders result:', result);
+    
     const folders = new Set();
     (result.resources || []).forEach(r => {
       if (r.folder) folders.add(r.folder);
