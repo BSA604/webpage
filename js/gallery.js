@@ -1,6 +1,5 @@
 const CLOUDINARY_CLOUD = 'drex1jrqe';
 const CLOUDINARY_BASE = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}`;
-const FOLDERS_API = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/folders`;
 const FOLDER_PREFIX = 'Marengo Cave';
 
 const eventFilter = document.getElementById('eventFilter');
@@ -17,15 +16,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadFolders() {
   try {
-    const response = await fetch(FOLDERS_API, {
-      headers: {
-        Authorization: 'Basic ' + btoa('727385161984683:pzgM2TDo39iec6fj__FCp5hchEk')
-      }
-    });
-    const data = await response.json();
-    console.log('Fetched folders:', data);
+    // Cloudinary admin APIs such as /folders require signed requests and are not CORS-enabled
+    // for browser-originated requests. The API secret must never be exposed in frontend code.
+    throw new Error('Cloudinary folder listing cannot be performed directly from browser code. Use a server-side proxy or static gallery metadata instead.');
   } catch (error) {
     console.error('Error loading folders:', error);
-    galleryContainer.innerHTML = '<div class="error">Unable to load gallery folders.</div>';
+    galleryContainer.innerHTML = '<div class="error">Unable to load gallery folders. This page requires a server-side Cloudinary proxy or static gallery data.</div>';
   }
 }
