@@ -1,0 +1,5 @@
+Delete This folder since this is not the correct spelling for calendar.
+
+I'm putting this here as a test and a reminder.
+
+to Delete with the command line type: rmdir calender
